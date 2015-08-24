@@ -5,14 +5,13 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,7 +30,7 @@ public class MainActivity extends ActionBarActivity{
     ListPoiAdapter adapter;
     Context c = this;
 
-    private RecyclerView mRecyclerView;
+    private RecyclerView rv;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
@@ -39,7 +38,12 @@ public class MainActivity extends ActionBarActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        listView = (ListView) findViewById(R.id.poislist);
+        //listView = (ListView) findViewById(R.id.poislist);
+        rv = (RecyclerView)findViewById(R.id.poislist);
+        LinearLayoutManager llm = new LinearLayoutManager(c);
+        rv.setLayoutManager(llm);
+
+
         final Button button = (Button) findViewById(R.id.mapButton);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -54,7 +58,7 @@ public class MainActivity extends ActionBarActivity{
 
         new HttpAsyncTask().execute(url);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+       /* rv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
@@ -65,7 +69,10 @@ public class MainActivity extends ActionBarActivity{
                 intent.putExtra("id", poi.id);
                 startActivity(intent);
             }
-        });
+        });*/
+
+        adapter = new ListPoiAdapter(PoiArray, c);
+        rv.setAdapter(adapter);
     }
 
 
@@ -109,10 +116,8 @@ public class MainActivity extends ActionBarActivity{
         protected void onPostExecute(List<POI> result){
             super.onPostExecute(result);
             PoiArray = result;
-            adapter = new ListPoiAdapter(c, PoiArray);
-            listView.setAdapter(adapter);
-
-
+            adapter = new ListPoiAdapter(PoiArray, c);
+            rv.setAdapter(adapter);
         }
 
 
