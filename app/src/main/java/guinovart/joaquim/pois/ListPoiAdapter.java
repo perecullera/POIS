@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -70,11 +69,8 @@ public class ListPoiAdapter extends RecyclerView.Adapter<ListPoiAdapter.ViewHold
 
             @Override
             public void onItemClick(View view, int position) {
-                //POI poi = ;
-                //System.out.print("poi............ "+ poi.id);
-                Toast.makeText(c, Integer.toString(position), Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(c, ResourceActivity.class);
-                intent.putExtra("id", position);
+                intent.putExtra("id", position+1);
                 c.startActivity(intent);
             }
         });

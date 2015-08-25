@@ -1,5 +1,6 @@
 package guinovart.joaquim.pois;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -34,14 +35,16 @@ public class MainActivity extends ActionBarActivity{
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
+    ProgressDialog pd;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //listView = (ListView) findViewById(R.id.poislist);
         rv = (RecyclerView)findViewById(R.id.poislist);
-        LinearLayoutManager llm = new LinearLayoutManager(c);
-        rv.setLayoutManager(llm);
+        mLayoutManager = new LinearLayoutManager(c);
+        rv.setLayoutManager(mLayoutManager);
 
 
         final Button button = (Button) findViewById(R.id.mapButton);
@@ -55,6 +58,8 @@ public class MainActivity extends ActionBarActivity{
         });
 
 
+        pd = new ProgressDialog(MainActivity.this);
+        pd.setMessage("Retrieving Data");
 
         new HttpAsyncTask().execute(url);
 
@@ -91,14 +96,23 @@ public class MainActivity extends ActionBarActivity{
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.map_activity){
+            Intent intent = new Intent(MainActivity.this, MapActivity.class);
+            intent.putParcelableArrayListExtra("POIarray", (ArrayList) PoiArray);
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);
     }
 
     public class HttpAsyncTask extends AsyncTask<String, Void, List<POI>> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            // init progressdialog
+            pd.show();
+        }
 
         @Override
         protected List<POI> doInBackground(String... urls) {
@@ -118,6 +132,7 @@ public class MainActivity extends ActionBarActivity{
             PoiArray = result;
             adapter = new ListPoiAdapter(PoiArray, c);
             rv.setAdapter(adapter);
+            pd.dismiss();
         }
 
 

@@ -97,7 +97,12 @@ public class Utilities {
             address.number = addArr[1];
             address.city = addArr[2];
             poi.address = address;
+            poi.phone = jsonObj.getString("phone");
+            poi.email = jsonObj.getString("email");
+            poi.transport = jsonObj.getString("transport");
+            poi.description = jsonObj.getString("description");
         }
+
         return poi;
     }
 }
