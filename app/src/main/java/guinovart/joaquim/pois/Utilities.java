@@ -93,9 +93,15 @@ public class Utilities {
             String addStr = jsonObj.getString("address");
             String[] addArr = addStr.split(",");
             Address address = new Address();
-            address.street = addArr[0];
-            address.number = addArr[1];
-            address.city = addArr[2];
+            if (addArr.length < 3) {
+                address.street = addArr[0];
+                address.number = null;
+                address.city = addArr[1];
+            } else {
+                address.street = addArr[0];
+                address.number = addArr[1];
+                address.city = addArr[2];
+            }
             poi.address = address;
             poi.phone = jsonObj.getString("phone");
             poi.email = jsonObj.getString("email");
