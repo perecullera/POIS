@@ -1,8 +1,7 @@
 <resources>
-    <string name="app_name">POIS</string>
-
-    <string name="hello_world">Hello world!</string>
+    <string name="app_name">POISList</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_resource">ResourceActivity</string>
-    <string name="title_activity_map">MapActivity</string>
+    <string name="title_activity_resource">POI</string>
+    <string name="title_activity_map">POI\'s Map</string>
+    <string name="mapActionBar">PoisMap</string>
 </resources>
