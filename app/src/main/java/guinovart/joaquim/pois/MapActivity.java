@@ -1,13 +1,14 @@
 package guinovart.joaquim.pois;
 
-import android.annotation.TargetApi;
+import android.app.Dialog;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -29,16 +30,30 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     ArrayList<POI> poiArray;
 
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //getting
         Intent intent=this.getIntent();
         poiArray = intent.getParcelableArrayListExtra("POIarray");
         setContentView(R.layout.activity_map);
-        mapFragment = ((MapFragment) getFragmentManager()
-                .findFragmentById(R.id.map));
-        mapFragment.getMapAsync(this);
+
+        //check if GooglePlayServices are installed
+        int statusCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(MapActivity.this);
+
+        //if properly installed, keep on
+        if (statusCode == ConnectionResult.SUCCESS ) {
+            mapFragment = ((MapFragment) getFragmentManager()
+                    .findFragmentById(R.id.map));
+            mapFragment.getMapAsync(this);
+
+        //show error dialog
+        } else {
+            int requestCode = 666;
+            Dialog dialog = GooglePlayServicesUtil.getErrorDialog(statusCode, this, requestCode);
+            dialog.show();
+        }
 
     }
 
@@ -66,29 +81,50 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     @Override
     public void onMapReady(GoogleMap map) {
 
+        //Bounds for centering the map on the existent POI's
         LatLngBounds bounds;
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
         map.setMyLocationEnabled(true);
 
+        //Adding the POI's received into the map
         for (POI poi : poiArray) {
             LatLng latLng = new LatLng(poi.location.getLatitude(), poi.location.getLongitude());
-            builder.include(latLng);
+
             map.addMarker(new MarkerOptions()
                     .title(Integer.toString(poi.id))
                     .snippet(poi.title)
                     .position(latLng));
+
+            //adding LatLng to builder to center Marker's on the map
+            builder.include(latLng);
         }
+
+        //calculate bounds
         bounds = builder.build();
 
         int padding = 150; // offset from edges of the map in pixels
-        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-        map.animateCamera(cu);
 
+        CameraUpdate cu;
+
+        //if array have more than one POI, don't need zoom
+        if (poiArray.size()>1) {
+            cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+            map.moveCamera(cu);
+        //when alone POI's, fix the Map Camera with especified zoom
+        } else {
+            //map.setMyLocationEnabled(false);
+            cu = CameraUpdateFactory.newLatLng(new LatLng(poiArray.get(0).location.getLatitude(),poiArray.get(0).location.getLongitude()));
+            map.moveCamera(cu);
+            CameraUpdate zoom=CameraUpdateFactory.zoomTo(15);
+            map.animateCamera(zoom);
+        }
+
+        //set the ClickListener to start ResourceActivity
         map.setOnInfoWindowClickListener(this);
 
     }
-
+    //when info window clicked, start ResourceActivity for the POI
     @Override
     public void onInfoWindowClick(Marker marker) {
         Intent intent = new Intent(MapActivity.this,ResourceActivity.class);
